@@ -2,7 +2,16 @@
 
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown, Heart, Mic, Send, Shield } from "lucide-react";
+import {
+  ChevronLeft,
+  Crown,
+  Heart,
+  Mic,
+  MoreHorizontal,
+  Send,
+  Shield,
+  Star,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useMemo, useState } from "react";
 
@@ -24,17 +33,45 @@ const HEART_REGEX = /【心动值】\s*(\d{1,3})/;
 const DELTA_REGEX = /【变化】\s*([+-]?\d{1,3})/;
 
 const levelOptions = [
-  { label: "LV1 初识", value: "LV1_初识 (让他对你产生好奇)" },
-  { label: "LV2 邀约", value: "LV2_推拉 (引导他主动邀约)" },
-  { label: "LV3 陷阱", value: "V3_废物测试 (应对他的无理要求)" },
+  { label: "初次相遇", value: "LV1_初识 (让他对你产生好奇)" },
+  { label: "甜蜜约会", value: "LV2_推拉 (引导他主动邀约)" },
+  { label: "危机化解", value: "V3_废物测试 (应对他的无理要求)" },
 ];
 
 const personaOptions = [
-  { label: "霸总", description: "强势、高冷", icon: Crown },
-  { label: "直男", description: "逻辑怪、木讷", icon: Shield },
-  { label: "奶狗", description: "粘人、情绪化", icon: Heart },
-  { label: "高情商", description: "共情强、会说话", icon: Heart },
+  {
+    label: "霸道总裁",
+    persona: "霸总",
+    description: "强势、高冷",
+    subtitle: "Dominant CEO",
+    quote: "在这个世界上，只有我能给你想要的一切。",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDOhZfV58_Q04KIwrGgwVa2K3f6ruhR5fRmeB4ceTMeh1X3xoSqwDcIRNk30h9MYB6JTCEY94E7HYgfBZmOKW9P7lmh5skNrNkNdT1Fx5PxyzgSYQ8qW9CvQ2ZTrsrmj_pGFiM16J8ie3NPrVkGiS85DtWZPeMnw5pVNw8GGz7U14Sw472xP0KNmt_3gyN7Pg6pSNiM79DvrUGfcSKeWR6uYCBCuHA-RE5-uVoUG0EAfmuHIY3uPKPQjSIjXeMK3cWVqgfqbHTqns0",
+  },
+  {
+    label: "温柔年下",
+    persona: "奶狗",
+    description: "粘人、情绪化",
+    subtitle: "Gentle Puppy",
+    quote: "无论你何时回头，我都会一直在这里等你。",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuANQbWAhgkTM2PTW3I2O8_CuWK4tKzxkBTH0PL0lC7pgj6ohd4s9_lZQXFk6ZLeXtLD1WNsv5ALY3cAehqnZoYjPv-zEBuVxmANmMicNNgeozjrBfmmGO00SS8Em0r3Nk9DEcR-8_Lm3D0XpQLhhLZj8mFEtrJtj53Awe7RxyzCfmGpaCAtxU2i5S2PX92KQFb0hIheb8oTr-iFjFFG3r0elzGHrz55GvwpEvOnaLgfs30hIWYtME3VLSG9h_r243NsAE8LpzMHO6k",
+  },
+  {
+    label: "孤傲画家",
+    persona: "高情商",
+    description: "共情强、会说话",
+    subtitle: "Mysterious Artist",
+    quote: "你是我画布上，唯一无法捕捉的色彩。",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCUDu0vyZTOD2Y1V4teYE-dw2eELLq9ZzMlWkNp1dHAXW2ZPv1cd2zu5XHJpjRwMj2nKQgP1pPJfr-TOS55ersgy8UkX37xzu7N7XIB1RMYCUH1Wvqb7_zrrk1Qxo0Asdv7SZmTB_qd_pHPZiHaQt_nQ_x76d-JBuCW7b0U3w9GO1qQ5Psc3TlsEuQXRlrcHVnNJ9CUK7eETTKo0EKxBGxwZULblqngPYM6qrOPdb1Tf5tKAK_xHlcDiqCeCNE6WNofUmcH7NqoODA",
+  },
 ];
+
+const chatBackgroundImage =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuCVsCJYVA-A_eaEn2ZAr3Aa7ovgy-AfzulCj4d313Mer68WXCEPV8NklB60vFZ5h0A2lRxpfoOneEErdwEKNZEa3KfiAo5aqrUyPQweP5NTyfc7jjMnSLL144MbyshKi7quc4AxGx1pPWcfyXo7o1CLFVxuhuTmjDHRXGWdqpkMyfPKRD6hbcpIRbA6ksi7lGlgZmvpuNyyA40ePhSnFwDsFxblib6bCcaYTgsQqg4sUchV1p9TOpsRhzX_TfUygg90RWimcxSfZug";
+const userAvatar =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuDpwSgxwCMgjeP41eEyp6Vx-9kiM_kP9DR_w-ejmZXk3FE7apDWJsDVg95h80ZxfqMYjD6FRF3q-5Gtaj3j22slIQkbFxJhO13JHxTZlZkeGFTOvfGuQxj5vBPz06f1F_Cu62plY9qWmlli5bCymzQzeX59xDDH_A6msei2uI22jToai-SIZ-okmWBtZniuKAYCo9k4rSowywXmDbJwpNV-YP8iBILoQBeInenGKg-GjTv5n74mYBaHRul_xjeASdx2lOaCP4Tifso";
 
 const initialMessages: ChatMessage[] = [
   {
@@ -81,9 +118,20 @@ export default function Home() {
     levelOptions.find((option) => option.value === config.level)?.label ??
     config.level;
   const personaIcon =
-    personaOptions.find((option) => option.label === config.persona)?.icon ??
-    Heart;
+    config.persona === "霸总" ? Crown : config.persona === "直男" ? Shield : Heart;
   const PersonaIcon = personaIcon;
+
+  const selectedPersonaIndex = personaOptions.findIndex(
+    (option) => option.persona === config.persona
+  );
+  const selectedPersona =
+    personaOptions.find((option) => option.persona === config.persona) ??
+    personaOptions[0];
+  const lastSuggestedQuestions =
+    [...messages]
+      .reverse()
+      .find((message) => message.role === "ai" && message.suggestedQuestions)
+      ?.suggestedQuestions ?? [];
 
   const progressColor = useMemo(() => {
     if (heartValue < 40) return "#60A5FA";
@@ -237,91 +285,85 @@ export default function Home() {
         {gameStatus === "selecting" ? (
           <motion.div
             key="selecting"
-            className="flex min-h-screen items-center justify-center px-6 py-10"
+            className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f8f5f7] px-4 pb-10 text-[#181014]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            <div className="w-full max-w-3xl rounded-[32px] border border-white/70 bg-white/95 p-8 shadow-2xl backdrop-blur">
-              <h1 className="text-center text-2xl font-semibold text-zinc-800">
-                恋爱魔镜：请选择你的挑战
-              </h1>
-              <p className="mt-2 text-center text-sm text-zinc-500">
-                选择关卡与对象，进入恋爱模拟对战。
-              </p>
-
-              <div className="mt-8">
-                <h2 className="text-sm font-semibold text-zinc-600">
-                  关卡选择
-                </h2>
-                <div className="mt-3 grid gap-4 sm:grid-cols-3">
-                  {levelOptions.map((level) => {
-                    const isSelected = config.level === level.value;
-                    return (
-                      <motion.button
-                        key={level.value}
-                        type="button"
-                        whileHover={{ scale: 1.05 }}
-                        onClick={() =>
-                          setConfig((prev) => ({
-                            ...prev,
-                            level: level.value,
-                          }))
-                        }
-                        className={`rounded-2xl border px-4 py-5 text-left transition ${
-                          isSelected
-                            ? "border-[#FF69B4] bg-[#FFF0F6] text-[#FF69B4] shadow-md"
-                            : "border-zinc-200 bg-white text-zinc-700 hover:border-[#FF69B4]/50"
-                        }`}
-                      >
-                        <div className="text-lg font-semibold">
-                          {level.label}
-                        </div>
-                        <div className="mt-1 text-xs text-zinc-500">
-                          点击选择该关卡
-                        </div>
-                      </motion.button>
-                    );
-                  })}
-                </div>
+            <header className="sticky top-0 z-30 flex items-center justify-between bg-[#f8f5f7]/80 p-4 backdrop-blur-md">
+              <div className="flex h-12 w-12 items-center justify-center text-[#ff9ecd]">
+                <Heart className="h-7 w-7 fill-current" />
               </div>
+              <h2 className="flex-1 pr-12 text-center text-xl font-bold tracking-tight">
+                今日心动邂逅
+              </h2>
+            </header>
 
-              <div className="mt-8">
-                <h2 className="text-sm font-semibold text-zinc-600">
-                  对象选择
-                </h2>
-                <div className="mt-3 grid gap-4 sm:grid-cols-4">
+            <nav className="mt-2 px-2">
+              <div className="flex gap-6 overflow-x-auto border-b border-[#ff9ecd]/20 pb-1">
+                {levelOptions.map((level) => {
+                  const isSelected = config.level === level.value;
+                  return (
+                    <button
+                      key={level.value}
+                      type="button"
+                      onClick={() =>
+                        setConfig((prev) => ({ ...prev, level: level.value }))
+                      }
+                      className={`flex flex-col items-center whitespace-nowrap pb-3 pt-2 text-sm font-bold tracking-wide transition ${
+                        isSelected
+                          ? "border-b-[3px] border-[#ff9ecd] text-[#ff9ecd]"
+                          : "border-b-[3px] border-transparent text-[#8d5e75]"
+                      }`}
+                    >
+                      {level.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+
+            <main className="flex flex-1 flex-col justify-center py-6">
+              <div className="flex snap-x snap-mandatory overflow-x-auto pb-2 [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max items-stretch gap-6 px-6">
                   {personaOptions.map((persona) => {
-                    const isSelected = config.persona === persona.label;
-                    const Icon = persona.icon;
+                    const isSelected = config.persona === persona.persona;
                     return (
                       <motion.button
-                        key={persona.label}
+                        key={persona.persona}
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           setConfig((prev) => ({
                             ...prev,
-                            persona: persona.label,
+                            persona: persona.persona,
                           }))
                         }
-                        className={`flex flex-col gap-2 rounded-2xl border px-4 py-5 text-left transition ${
+                        className={`relative flex h-[500px] w-[300px] snap-center flex-col overflow-hidden rounded-xl text-left transition ${
                           isSelected
-                            ? "border-[#FF69B4] bg-[#FFF0F6] text-[#FF69B4] shadow-md"
-                            : "border-zinc-200 bg-white text-zinc-700 hover:border-[#FF69B4]/50"
+                            ? "border-2 border-[#ff9ecd] shadow-[0_10px_30px_-5px_rgba(255,158,205,0.5)]"
+                            : "border border-white/60 shadow-[0_10px_30px_-5px_rgba(255,158,205,0.3)]"
                         }`}
                       >
-                        <Icon
-                          className={`h-6 w-6 ${
-                            isSelected ? "text-[#FF69B4]" : "text-zinc-400"
-                          }`}
+                        <div
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-110"
+                          style={{ backgroundImage: `url("${persona.image}")` }}
                         />
-                        <div className="text-base font-semibold">
-                          {persona.label}
-                        </div>
-                        <div className="text-xs text-zinc-500">
-                          {persona.description}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/30 bg-white/70 p-5 backdrop-blur-xl">
+                          <div className="mb-1 flex items-start justify-between">
+                            <h3 className="text-xl font-bold text-[#181014]">
+                              {persona.label}
+                            </h3>
+                            <span className="text-sm text-[#D4AF37]">★</span>
+                          </div>
+                          <p className="mb-2 text-xs font-medium uppercase tracking-widest text-[#8d5e75]">
+                            {persona.subtitle}
+                          </p>
+                          <p className="text-sm italic leading-relaxed text-[#181014]/90">
+                            “{persona.quote}”
+                          </p>
                         </div>
                       </motion.button>
                     );
@@ -329,31 +371,57 @@ export default function Home() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="mt-10 w-full rounded-2xl bg-[#FF69B4] py-4 text-lg font-semibold text-white shadow-lg transition hover:bg-[#ff4aa2]"
-                onClick={() => {
-                  setMessages(initialMessages);
-                  setConversationId(null);
-                  setHeartValue(35);
-                  setGameStatus("playing");
-                }}
-              >
-                开始模拟
-              </button>
-            </div>
+              <div className="flex w-full items-center justify-center gap-2 py-8">
+                {personaOptions.map((_, index) => (
+                  <div
+                    key={`indicator-${index}`}
+                    className={`h-1.5 rounded-full transition-all ${
+                      index === selectedPersonaIndex
+                        ? "w-6 bg-[#ff9ecd]"
+                        : "w-1.5 bg-[#e7dae0]"
+                    }`}
+                  />
+                ))}
+              </div>
+            </main>
+
+            <footer className="bg-gradient-to-t from-[#f8f5f7] to-transparent pb-10">
+              <div className="flex px-4">
+                <button
+                  type="button"
+                  className="flex h-14 flex-1 items-center justify-center rounded-full bg-[#ff9ecd] px-8 text-lg font-bold tracking-wider text-[#181014] shadow-[0_4px_20px_rgba(255,158,205,0.5)] transition active:scale-95"
+                  onClick={() => {
+                    setMessages(initialMessages);
+                    setConversationId(null);
+                    setHeartValue(35);
+                    setGameStatus("playing");
+                  }}
+                >
+                  开启恋爱之旅
+                  <span className="ml-2 text-xl">✨</span>
+                </button>
+              </div>
+            </footer>
+
+            <div className="pointer-events-none fixed -right-20 top-20 h-64 w-64 rounded-full bg-[#ff9ecd]/10 blur-[100px]" />
+            <div className="pointer-events-none fixed -left-20 bottom-40 h-80 w-80 rounded-full bg-[#ff9ecd]/5 blur-[100px]" />
           </motion.div>
         ) : (
           <motion.div
             key={`playing-${shakeKey}`}
-            className="flex min-h-screen items-center justify-center px-4 py-6"
+            className="relative flex min-h-screen w-full flex-col overflow-hidden bg-[#f8f5f7] px-4 py-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
+            style={{
+              backgroundImage: `linear-gradient(135deg, rgba(253,252,251,0.95) 0%, rgba(226,209,195,0.95) 100%), url("${chatBackgroundImage}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <motion.div
-              className="relative flex h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-xl"
+              className="relative flex h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-[28px] border border-white/60 bg-white/60 shadow-xl backdrop-blur"
               animate={
                 shakeKey
                   ? { x: [0, -6, 6, -4, 4, 0] }
@@ -403,116 +471,170 @@ export default function Home() {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <header className="flex flex-col gap-3 border-b border-zinc-200 bg-[#FFF0F6] px-5 py-4">
-                <div className="flex items-center justify-between text-sm font-semibold text-zinc-700">
-                  <span className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
-                      <PersonaIcon className="h-4 w-4 text-[#FF69B4]" />
-                    </span>
-                    <span>
-                      {config.persona}
-                      <span className="ml-2 text-xs text-zinc-500">
-                        {levelLabel}
-                      </span>
-                    </span>
-                  </span>
+              <div className="pointer-events-none absolute inset-0 z-10">
+                <Star className="absolute left-[10%] top-[20%] h-7 w-7 text-yellow-400/60" />
+                <Star className="absolute right-[20%] top-[25%] h-4 w-4 text-yellow-400/40" />
+                <Star className="absolute right-[12%] top-[45%] h-6 w-6 text-yellow-400/50" />
+              </div>
+
+              <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/20 bg-white/70 px-4 pb-4 pt-10 backdrop-blur">
+                <div className="flex items-center gap-3">
                   <button
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/60 text-[#181014]"
                     type="button"
-                    className="rounded-full border border-[#FF69B4]/50 px-3 py-1 text-xs text-[#FF69B4] transition hover:bg-[#FF69B4]/10"
                     onClick={handleReset}
                   >
-                    退出/重来
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                    <Heart size={18} color={progressColor} fill={progressColor} />
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="h-10 w-10 rounded-full bg-cover bg-center ring-2 ring-[#ff9ecd]/50"
+                      style={{
+                        backgroundImage: `url("${selectedPersona.image}")`,
+                      }}
+                    />
+                    <div>
+                      <h2 className="text-base font-bold text-[#181014]">
+                        {selectedPersona.label}
+                      </h2>
+                      <p className="text-xs font-medium text-[#8d5e75]">
+                        {isLoading ? "Typing..." : levelLabel}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="mb-1 flex items-center justify-between text-xs text-zinc-500">
-                      <span>心动值</span>
+                </div>
+                <button
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-[#181014]"
+                  type="button"
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </button>
+              </header>
+
+              <div className="px-4 pt-2">
+                <div className="rounded-2xl border border-white/40 bg-white/70 p-4 shadow-sm backdrop-blur">
+                  <div className="mb-2 flex items-end justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Heart className="h-4 w-4 text-[#ff9ecd]" fill="#ff9ecd" />
+                      <p className="text-sm font-semibold tracking-wide text-[#181014]">
+                        Affection Level
+                      </p>
+                    </div>
+                    <div className="rounded-full bg-[#ff9ecd] px-2 py-0.5 shadow-sm">
                       <motion.span
                         key={heartValue}
                         initial={{ y: 12, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.2 }}
-                        className="font-semibold"
-                        style={{ color: progressColor }}
+                        className="text-xs font-bold text-white"
                       >
                         {heartValue}%
                       </motion.span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200">
-                      <motion.div
-                        className="h-full rounded-full"
-                        animate={{
-                          width: `${heartValue}%`,
-                          backgroundColor: progressColor,
-                        }}
-                        transition={{ type: "spring", stiffness: 140, damping: 18 }}
-                      />
-                    </div>
                   </div>
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#e7dae0]">
+                    <motion.div
+                      className="h-full rounded-full shadow-[0_0_8px_rgba(212,175,55,0.6)]"
+                      animate={{ width: `${heartValue}%` }}
+                      transition={{ type: "spring", stiffness: 140, damping: 18 }}
+                      style={{
+                        background:
+                          "linear-gradient(90deg, #d4af37, #f9e27d, #d4af37)",
+                        backgroundSize: "200% auto",
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-[10px] font-medium italic text-[#8d5e75]">
+                    {selectedPersona.label} is starting to open up his heart to
+                    you...
+                  </p>
                 </div>
-              </header>
+              </div>
 
-              <main className="flex-1 space-y-4 overflow-y-auto bg-zinc-100 px-4 py-5">
+              <main className="flex-1 space-y-4 overflow-y-auto px-4 py-2 pb-28">
+                <div className="my-4 flex justify-center">
+                  <span className="rounded-full bg-white/40 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#8d5e75]">
+                    Today
+                  </span>
+                </div>
                 <AnimatePresence initial={false}>
                   {messages.map((message) => (
                     <motion.div
                       key={message.id}
                       {...(message.role === "ai" ? chatMotion : {})}
                     >
-                      <div
-                        className={`flex ${
-                          message.role === "user"
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
-                            message.role === "user"
-                              ? "rounded-br-md bg-emerald-400 text-white"
-                              : "rounded-bl-md bg-white text-zinc-700"
-                          }`}
-                        >
-                          {message.role === "ai" ? (
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
-                          ) : (
-                            message.content
-                          )}
-                        </div>
-                      </div>
-                      {message.role === "ai" &&
-                        message.suggestedQuestions &&
-                        message.suggestedQuestions.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {message.suggestedQuestions.map((question, index) => (
-                              <button
-                                key={`${message.id}-q-${index}`}
-                                className="rounded-full border border-[#FF69B4] bg-white px-3 py-1 text-xs font-medium text-[#FF69B4] transition hover:bg-[#FF69B4]/10"
-                                onClick={() => handleSend(question)}
-                                type="button"
-                              >
-                                {question}
-                              </button>
-                            ))}
+                      {message.role === "ai" ? (
+                        <div className="flex items-end gap-2">
+                          <div
+                            className="h-8 w-8 shrink-0 rounded-full bg-cover bg-center shadow-sm"
+                            style={{
+                              backgroundImage: `url("${selectedPersona.image}")`,
+                            }}
+                          />
+                          <div className="flex flex-col items-start gap-1">
+                            <p className="ml-1 text-[11px] font-semibold text-[#8d5e75]">
+                              {selectedPersona.label}
+                            </p>
+                            <div className="max-w-[280px] rounded-2xl rounded-bl-none border border-white/50 bg-white/70 px-4 py-3 text-sm font-medium leading-relaxed text-[#181014] shadow-sm backdrop-blur">
+                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                            </div>
                           </div>
-                        )}
+                        </div>
+                      ) : (
+                        <div className="flex items-end justify-end gap-2">
+                          <div className="flex flex-col items-end gap-1">
+                            <p className="mr-1 text-[11px] font-semibold text-[#8d5e75]">
+                              You
+                            </p>
+                            <div className="max-w-[280px] rounded-2xl rounded-br-none bg-gradient-to-br from-[#ff9ecd] to-[#ff7eb3] px-4 py-3 text-sm font-medium leading-relaxed text-white shadow-md">
+                              {message.content}
+                            </div>
+                          </div>
+                          <div
+                            className="h-8 w-8 shrink-0 rounded-full bg-cover bg-center shadow-sm"
+                            style={{ backgroundImage: `url("${userAvatar}")` }}
+                          />
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </AnimatePresence>
                 {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 text-xs text-zinc-400 shadow-sm">
-                      {config.persona}正在输入...
+                  <div className="flex items-end gap-2">
+                    <div
+                      className="h-8 w-8 shrink-0 rounded-full bg-cover bg-center shadow-sm"
+                      style={{
+                        backgroundImage: `url("${selectedPersona.image}")`,
+                      }}
+                    />
+                    <div className="flex flex-col items-start gap-1">
+                      <p className="ml-1 text-[11px] font-semibold text-[#8d5e75]">
+                        {selectedPersona.label}
+                      </p>
+                      <div className="max-w-[280px] rounded-2xl rounded-bl-none border border-white/50 bg-white/70 px-4 py-3 text-xs font-medium leading-relaxed text-[#181014] shadow-sm backdrop-blur">
+                        Typing...
+                      </div>
                     </div>
                   </div>
                 )}
               </main>
 
-              <footer className="border-t border-zinc-200 bg-white px-4 py-3">
+              <footer className="fixed bottom-0 left-0 right-0 z-30 space-y-4 p-4 pb-8">
+                {lastSuggestedQuestions.length > 0 && (
+                  <div className="no-scrollbar flex justify-center gap-2 overflow-x-auto pb-1">
+                    {lastSuggestedQuestions.map((question) => (
+                      <button
+                        key={question}
+                        type="button"
+                        onClick={() => handleSend(question)}
+                        className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-white/60 bg-white/70 px-4 text-xs font-bold text-[#181014] shadow-sm transition active:scale-95"
+                      >
+                        <Heart className="h-4 w-4 text-[#ff9ecd]" />
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <form
                   className="flex items-center gap-2"
                   onSubmit={(event) => {
@@ -522,25 +644,27 @@ export default function Home() {
                 >
                   <button
                     type="button"
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-500"
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-white/70 shadow-sm"
                     aria-label="语音"
                   >
-                    <Mic size={18} />
+                    <Mic className="h-5 w-5 text-[#8d5e75]" />
                   </button>
-                  <input
-                    className="h-10 flex-1 rounded-full border border-zinc-200 bg-zinc-50 px-4 text-sm outline-none focus:border-[#FF69B4]"
-                    placeholder="输入想说的话..."
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                  />
-                  <button
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FF69B4] text-white transition hover:bg-[#ff4aa2] disabled:cursor-not-allowed disabled:opacity-60"
-                    type="submit"
-                    aria-label="发送"
-                    disabled={!input.trim() || isLoading}
-                  >
-                    <Send size={18} />
-                  </button>
+                  <div className="relative flex-1">
+                    <input
+                      className="h-12 w-full rounded-full border-0 bg-white/70 px-5 pr-14 text-sm font-medium text-[#181014] placeholder:text-[#8d5e75]/60 shadow-sm focus:ring-2 focus:ring-[#ff9ecd]/50"
+                      placeholder="Type a message..."
+                      value={input}
+                      onChange={(event) => setInput(event.target.value)}
+                    />
+                    <button
+                      className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#ff9ecd] to-[#ff7eb3] text-white shadow-md"
+                      type="submit"
+                      aria-label="发送"
+                      disabled={!input.trim() || isLoading}
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
                 </form>
               </footer>
             </motion.div>
