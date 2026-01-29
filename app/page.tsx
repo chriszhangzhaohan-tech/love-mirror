@@ -1,6 +1,6 @@
 "use client";
 
-import confetti from "canvas-confetti";
+import confetti, { type Shape } from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -149,10 +149,12 @@ export default function Home() {
   };
 
   const triggerPositiveFeedback = (diff: number) => {
-    const shared = {
+    const shared: Omit<confetti.Options, "origin" | "particleCount"> & {
+      shapes: Shape[];
+    } = {
       spread: 360,
       scalar: 1.2,
-      shapes: ["star"],
+      shapes: ["star"] as Shape[],
       colors: ["#FACC15", "#F472B6", "#FDBA74"],
     };
     const burst = (originX: number, originY: number, count: number) =>
