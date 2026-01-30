@@ -553,7 +553,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <main className="flex-1 space-y-4 overflow-y-auto px-4 py-2 pb-28">
+              <main className="flex-1 space-y-4 overflow-y-auto px-4 py-2 pb-48">
                 <div className="my-4 flex justify-center">
                   <span className="rounded-full bg-white/40 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#8d5e75]">
                     Today
@@ -621,9 +621,9 @@ export default function Home() {
                 )}
               </main>
 
-              <footer className="fixed bottom-0 left-0 right-0 z-30 space-y-4 p-4 pb-8">
+              <footer className="fixed bottom-0 left-0 right-0 z-50 space-y-5 bg-white/80 p-4 pb-8 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
                 {lastSuggestedQuestions.length > 0 && (
-                  <div className="no-scrollbar flex justify-center gap-2 overflow-x-auto pb-1">
+                  <div className="no-scrollbar mb-2 flex justify-center gap-2 overflow-x-auto pb-1">
                     {lastSuggestedQuestions.map((question) => (
                       <button
                         key={question}
